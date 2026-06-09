@@ -443,19 +443,38 @@ def copy_scripts(src_dir, dst_dir, design=None):
 # Main converter
 # ---------------------------------------------------------------------------
 
+def detect_format(cvdp_folder):
+    """Return 'realbench' if folder has verification/ subdir, else 'cvdp'."""
+    if (Path(cvdp_folder) / 'verification').is_dir():
+        return 'realbench'
+    return 'cvdp'
+
+
 def convert(cvdp_folder, output_folder=None):
     cvdp   = Path(cvdp_folder).resolve()
-    design = get_design_name(cvdp)
-    out    = Path(output_folder) if output_folder else Path(f'iclab_{design}')
+    fmt    = detect_format(cvdp)
 
+    # ---- Determine design name, RTL dir, testbench dir ----
+    if fmt == 'realbench':
+        # RealBench: folder name is the design name
+        # RTL at top level, verification files in verification/
+        design  = cvdp.name
+        rtl_dir = cvdp
+        tb_dir  = cvdp / 'verification'
+    else:
+        # CVDP: extract design name from folder name or RTL filenames
+        design  = get_design_name(cvdp)
+        rtl_dir = cvdp / '01_RTL'
+        tb_dir  = cvdp / '00_TESTBED'
+
+    out = Path(output_folder) if output_folder else Path(f'iclab_{design}')
+
+    print(f"Format  : {fmt}")
     print(f"Design  : {design}")
     print(f"Input   : {cvdp}")
     print(f"Output  : {out}")
 
-    tb_dir  = cvdp / '00_TESTBED'
-    rtl_dir = cvdp / '01_RTL'
-
-    # Collect non-stub RTL files
+    # ---- Collect RTL files ----
     rtl_files = sorted(
         f for f in rtl_dir.glob('*.v')
         if '.empty' not in f.name and '.bak' not in f.name
@@ -463,11 +482,18 @@ def convert(cvdp_folder, output_folder=None):
     if not rtl_files:
         raise FileNotFoundError(f"No RTL .v files found in {rtl_dir}")
 
-    # Combine all RTL into one string (usually a single file)
-    rtl_content  = '\n\n'.join(f.read_text() for f in rtl_files)
+    # For RealBench, submodule RTL files live in verification/ alongside the sv files
+    if fmt == 'realbench':
+        sub_rtl = sorted(f for f in tb_dir.glob('*.v'))
+        all_rtl_files = rtl_files + sub_rtl
+    else:
+        all_rtl_files = rtl_files
+
+    # Combine all RTL into one string
+    rtl_content   = '\n\n'.join(f.read_text() for f in all_rtl_files)
     rtl_mod_names = {n for n, _ in split_into_modules(rtl_content)}
 
-    # Parse top module ports
+    # Parse top module ports from the first (main) RTL file
     top_mods = split_into_modules(rtl_files[0].read_text())
     top_text = next((t for n, t in top_mods if n == design),
                     top_mods[0][1] if top_mods else '')
@@ -479,7 +505,7 @@ def convert(cvdp_folder, output_folder=None):
     print(f"Ports   : {[n for _, _, n in ports]}")
     print(f"Reset   : {reset_port}")
 
-    # Load CVDP verification files
+    # ---- Load verification files ----
     def read_tb(glob_pattern):
         matches = sorted(tb_dir.glob(glob_pattern))
         if not matches:
