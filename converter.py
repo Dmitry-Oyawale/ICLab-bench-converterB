@@ -519,6 +519,13 @@ def convert(cvdp_folder, output_folder=None):
     for sub in ['00_TESTBED', '01_RTL', '02_SYN/Netlist', '02_SYN/Report', '03_GATE']:
         (out / sub).mkdir(parents=True, exist_ok=True)
 
+    # Add .gitkeep to empty dirs so git tracks them (Netlist/ and Report/ must
+    # exist on the server before DC runs, but they start empty)
+    for empty_dir in ['00_TESTBED/Netlist', '00_TESTBED/Report',
+                      '02_SYN/Netlist', '02_SYN/Report']:
+        (out / empty_dir).mkdir(parents=True, exist_ok=True)
+        (out / empty_dir / '.gitkeep').touch()
+
     # Write generated files
     (out / '00_TESTBED' / 'TESTBED.v').write_text(
         make_testbed_v(design, ports))
