@@ -304,9 +304,10 @@ def make_pattern_v(design, ports, stim_text, ref_text, rtl_mod_names, rtl_conten
             ref_conns.append(f'.{rn}({rn})')
     ref_conn = ',\n\t\t'.join(ref_conns)
 
-    # Always-block error counting
-    error_block = '\n'.join(
-        f'        if (!tb_match_{n}) begin\n'
+    # Always-block error counting (guarded: skip first clock cycle so gate-level
+    # X initialization doesn't produce a false mismatch at t=5)
+    error_block_guarded = '\n'.join(
+        f'        if (stats1.clocks > 1 && !tb_match_{n}) begin\n'
         f'            if (stats1.errors_{n} == 0) stats1.errortime_{n} = $time;\n'
         f'            stats1.errors_{n}++;\n'
         f'        end'
@@ -368,11 +369,11 @@ def make_pattern_v(design, ports, stim_text, ref_text, rtl_mod_names, rtl_conten
 
     always @(posedge clk) begin
         stats1.clocks++;
-        if (!tb_match) begin
+        if (stats1.clocks > 1 && !tb_match) begin
             if (stats1.errors == 0) stats1.errortime = $time;
             stats1.errors++;
         end
-{error_block}
+{error_block_guarded}
     end
 
     final begin

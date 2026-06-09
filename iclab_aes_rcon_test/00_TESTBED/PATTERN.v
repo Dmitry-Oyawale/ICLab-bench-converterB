@@ -126,11 +126,11 @@ module PATTERN(clk, kld, out_dut);
 
     always @(posedge clk) begin
         stats1.clocks++;
-        if (!tb_match) begin
+        if (stats1.clocks > 1 && !tb_match) begin
             if (stats1.errors == 0) stats1.errortime = $time;
             stats1.errors++;
         end
-        if (!tb_match_out) begin
+        if (stats1.clocks > 1 && !tb_match_out) begin
             if (stats1.errors_out == 0) stats1.errortime_out = $time;
             stats1.errors_out++;
         end
