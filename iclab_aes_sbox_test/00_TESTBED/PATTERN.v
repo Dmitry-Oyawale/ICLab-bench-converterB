@@ -1,36 +1,3 @@
-// stimulus_gen.sv
-module stimulus_gen (
-    input clk,
-    output logic [7:0] a  // sbox input
-);
-    initial begin
-        a = 8'hxx;  // 初始化为未知值
-        
-        // 第一轮：在时钟上升沿测试所有输入值
-        for(int i=0; i<256; i++) begin
-            @(posedge clk);
-            a = i[7:0];
-        end
-        
-        // 第二轮：在时钟下降沿测试所有输入值
-        for(int i=0; i<256; i++) begin
-            @(negedge clk);
-            a = i[7:0];
-        end
-        
-        // 第三轮：反向顺序测试所有输入值
-        for(int i=255; i>=0; i--) begin
-            @(posedge clk);
-            a = i[7:0];
-        end
-        
-        
-        // 完成所有测试后结束仿真
-        @(posedge clk);
-        $finish;
-    end
-endmodule
-
 module ref_aes_sbox(a,b);
 input	[7:0]	a;
 output	[7:0]	b;
@@ -298,6 +265,39 @@ always @(a)
 
 endmodule
 
+// stimulus_gen.sv
+module stimulus_gen (
+    input clk,
+    output logic [7:0] a  // sbox input
+);
+    initial begin
+        a = 8'hxx;  // 初始化为未知值
+        
+        // 第一轮：在时钟上升沿测试所有输入值
+        for(int i=0; i<256; i++) begin
+            @(posedge clk);
+            a = i[7:0];
+        end
+        
+        // 第二轮：在时钟下降沿测试所有输入值
+        for(int i=0; i<256; i++) begin
+            @(negedge clk);
+            a = i[7:0];
+        end
+        
+        // 第三轮：反向顺序测试所有输入值
+        for(int i=255; i>=0; i--) begin
+            @(posedge clk);
+            a = i[7:0];
+        end
+        
+        
+        // 完成所有测试后结束仿真
+        @(posedge clk);
+        $finish;
+    end
+endmodule
+
 module PATTERN(clk, a, b_dut);
     output logic clk;
     output logic [7:0] a;
@@ -341,11 +341,11 @@ module PATTERN(clk, a, b_dut);
 
     always @(posedge clk) begin
         stats1.clocks++;
-        if (!tb_match) begin
+        if (stats1.clocks > 1 && !tb_match) begin
             if (stats1.errors == 0) stats1.errortime = $time;
             stats1.errors++;
         end
-        if (!tb_match_b) begin
+        if (stats1.clocks > 1 && !tb_match_b) begin
             if (stats1.errors_b == 0) stats1.errortime_b = $time;
             stats1.errors_b++;
         end
