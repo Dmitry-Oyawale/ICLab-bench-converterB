@@ -516,6 +516,10 @@ def convert(cvdp_folder, output_folder=None):
     stim_text = read_tb(f'{design}_stimulus_gen.sv')
     ref_text  = read_tb(f'{design}_ref.sv')
 
+    # Copy any extra files `include'd by the verification sources (e.g. sd_defines.v)
+    # that aren't module files and need to exist alongside PATTERN.v for VCS.
+    include_names = set(re.findall(r'`include\s+"([^"]+)"', stim_text + ref_text))
+
     # Create output directory tree
     for sub in ['00_TESTBED', '01_RTL', '02_SYN/Netlist', '02_SYN/Report', '03_GATE']:
         (out / sub).mkdir(parents=True, exist_ok=True)
@@ -526,6 +530,13 @@ def convert(cvdp_folder, output_folder=None):
                       '02_SYN/Netlist', '02_SYN/Report']:
         (out / empty_dir).mkdir(parents=True, exist_ok=True)
         (out / empty_dir / '.gitkeep').touch()
+
+    # Copy any `include'd header files from verification/ into 00_TESTBED/
+    for inc_name in include_names:
+        src = tb_dir / inc_name
+        if src.exists():
+            shutil.copy2(src, out / '00_TESTBED' / inc_name)
+            print(f"Copied include: {inc_name}")
 
     # Write generated files
     (out / '00_TESTBED' / 'TESTBED.v').write_text(
