@@ -1,3 +1,6 @@
+`include "sd_defines.v"
+
+
 module ref_sd_data_serial_host(
 input sd_clk,
 input rst,

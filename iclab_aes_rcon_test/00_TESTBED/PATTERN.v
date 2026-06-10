@@ -1,3 +1,5 @@
+//`include "timescale.v"
+
 module ref_aes_rcon(clk, kld, out);
 input		clk;
 input		kld;

@@ -1,3 +1,5 @@
+`include "sd_defines.v"
+
 module ref_sd_rx_fifo
   (
    input [4-1:0] d,//4位宽的数据输入端口

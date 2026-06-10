@@ -1,3 +1,5 @@
+
+`include "sd_defines.v"
 module ref_sd_tx_fifo
   (
    input [32-1:0] d,//写入数据，宽度32位

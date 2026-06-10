@@ -1,3 +1,4 @@
+`include "sd_defines.v"
 module ref_sd_cmd_master(
 input CLK_PAD_IO,
 
@@ -423,7 +424,7 @@ module stimulus_gen (
             ARG_REG = $random;
             CMD_SET_REG = $random;
             TIMEOUT_REG = $random;
-            cmd_in = {$random, $random[7:0]};
+            cmd_in = {$random, ($random)[7:0]};
             serial_status = $random;
 			reset = !($random & 31);
 		end

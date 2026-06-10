@@ -70,7 +70,7 @@ set_input_delay   -min  0           -clock clk   [all_inputs] ;  # hold   time c
 set_output_delay  -max  $OUTPUT_DLY -clock clk   [all_outputs] ; # set_up time check 
 set_output_delay  -min  0           -clock clk   [all_outputs] ; # hold   time check 
 set_input_delay 0 -clock clk clk
-set_input_delay 0 -clock clk error_isr_reset
+set_input_delay 0 -clock clk normal_isr_reset
 #set_max_delay $CYCLE -from [all_inputs] -to [all_outputs]
 
 # (D-3) Setting Design Environment

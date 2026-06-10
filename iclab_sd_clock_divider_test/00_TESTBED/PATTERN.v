@@ -1,3 +1,4 @@
+`include "sd_defines.v"//nononw
 module ref_sd_clock_divider (
   input wire CLK,
   input wire [7:0] DIVIDER,

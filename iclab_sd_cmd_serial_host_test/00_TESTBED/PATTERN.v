@@ -1,3 +1,6 @@
+`include "sd_defines.v"
+//-------------------------
+//-------------------------
 module ref_sd_cmd_serial_host ( SD_CLK_IN, RST_IN, SETTING_IN ,CMD_IN, REQ_IN, ACK_OUT, REQ_OUT,ACK_IN, CMD_OUT, STATUS, cmd_dat_i, cmd_out_o, cmd_oe_o, st_dat_t);
 //---------------Input ports---------------
 input SD_CLK_IN;
@@ -739,7 +742,7 @@ module stimulus_gen (
             SETTING_IN [14:13] = ($random % 4);//DLY
 
 
-            CMD_IN = {$random, $random[7:0]};
+            CMD_IN = {$random, ($random)[7:0]};
             REQ_IN = ($random %2);
             ACK_IN = ($random %2);
             cmd_dat_i = ($random %2);

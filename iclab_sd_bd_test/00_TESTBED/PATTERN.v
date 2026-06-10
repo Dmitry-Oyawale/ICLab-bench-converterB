@@ -1,3 +1,8 @@
+
+`include "sd_defines.v"
+
+
+
 module ref_sd_bd (
 input clk,
 input rst,

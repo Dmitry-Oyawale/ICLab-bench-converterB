@@ -1,3 +1,7 @@
+//用于管理数据的传输和填充fifo缓冲区。
+//他通过wishbone总线读取数据，并将数据写入tx fifo
+`include "sd_defines.v"
+
 module ref_sd_fifo_tx_filler
 ( 
 input clk,

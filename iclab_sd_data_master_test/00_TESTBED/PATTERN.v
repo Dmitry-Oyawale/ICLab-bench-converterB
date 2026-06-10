@@ -1,3 +1,5 @@
+`include "sd_defines.v"
+
 module ref_sd_data_master (
   input clk,
   input rst,

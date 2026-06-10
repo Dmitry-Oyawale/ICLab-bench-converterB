@@ -1,3 +1,4 @@
+`include "sd_defines.v"
 module ref_sd_controller_wb(
   wb_clk_i, wb_rst_i, wb_dat_i, wb_dat_o, 
 

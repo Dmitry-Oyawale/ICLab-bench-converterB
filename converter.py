@@ -227,6 +227,21 @@ def make_pattern_v(design, ports, stim_text, ref_text, rtl_mod_names, rtl_conten
     # RTL include, and during gate sim by the ifdef GATE section below).
     ref_text, rtl_mods_used_by_ref = normalize_ref_model(ref_text, rtl_mod_names, design)
 
+    # Fix VCS syntax issue: $random[n:m] is not allowed; must be ($random)[n:m]
+    stim_text = stim_text.replace('$random[', '($random)[')
+
+    # Extract preamble (lines before the first module keyword, e.g. `include directives)
+    def get_preamble(text):
+        lines = text.splitlines(keepends=True)
+        pre = []
+        for line in lines:
+            if re.match(r'\s*module\s+', line):
+                break
+            pre.append(line)
+        return ''.join(pre)
+
+    ref_preamble = get_preamble(ref_text)
+
     ref_mods = split_into_modules(ref_text)
     stim_mods = split_into_modules(stim_text)
 
@@ -329,7 +344,7 @@ def make_pattern_v(design, ports, stim_text, ref_text, rtl_mod_names, rtl_conten
     if gate_only:
         gate_section = '`ifdef GATE\n' + ''.join(t for _, t in gate_only) + '`endif\n\n'
 
-    ref_section = '\n\n'.join(t.strip() for _, t in public_ref) + '\n\n'
+    ref_section = ref_preamble + '\n\n'.join(t.strip() for _, t in public_ref) + '\n\n'
 
     pattern_mod = f"""module PATTERN({', '.join(port_name_list)});
 {chr(10).join(d + ';' for d in port_decls)}

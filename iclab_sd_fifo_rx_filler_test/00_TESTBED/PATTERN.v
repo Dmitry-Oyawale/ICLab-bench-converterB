@@ -1,3 +1,5 @@
+`include "sd_defines.v"
+
 module ref_sd_fifo_rx_filler
 ( 
 input clk,
