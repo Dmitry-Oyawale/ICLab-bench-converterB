@@ -393,7 +393,10 @@ def make_pattern_v(design, ports, stim_text, ref_text, rtl_mod_names, rtl_conten
 endmodule
 """
 
-    return gate_section + stim_text.strip() + '\n\n' + ref_section + pattern_mod
+    # ref_section comes before stim_text so that any `define macros inside the
+    # ref module body (e.g. BD_EMPTY in sd_data_master) are visible to the
+    # stimulus_gen, which may use them via `ifdef/expression substitution.
+    return gate_section + ref_section + stim_text.strip() + '\n\n' + pattern_mod
 
 
 def make_syn_tcl(design, reset_port):
